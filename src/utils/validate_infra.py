@@ -1,6 +1,4 @@
 import subprocess
-import socket
-import json
 import requests
 import psycopg2
 from confluent_kafka.admin import AdminClient
