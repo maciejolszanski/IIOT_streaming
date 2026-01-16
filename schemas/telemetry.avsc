@@ -1,0 +1,12 @@
+{
+  "type": "record",
+  "name": "Telemetry",
+  "namespace": "com.iiot.sensor",
+  "fields": [
+    {"name": "machine_id", "type": "string"},
+    {"name": "timestamp", "type": "long", "logicalType": "timestamp-millis"},
+    {"name": "sensor_type", "type": "string"},
+    {"name": "value", "type": "double"},
+    {"name": "status_code", "type": "int"}
+  ]
+}
