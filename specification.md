@@ -11,7 +11,7 @@
 ## 2. Architecture Layers
 
 ### 🏗️ Layer I: Infrastructure & Environment (The Foundation)
-*Objective: Orchestrate a stable environment within strict hardware limits (8GB RAM).*
+*Objective: Orchestrate a stable environment within strict hardware limits (~4GB available RAM).*
 
 * **Container Orchestration:** Docker & Docker Compose.
 * **Message Broker:** Apache Kafka (Kraft mode).
@@ -19,10 +19,11 @@
 * **Storage:** PostgreSQL (TimescaleDB) & local storage/MinIO for data archival.
 * **Observability:** Grafana.
 
-* **Hardware Constraints Strategy ("The 8GB Limit"):**
-    * **Lean Stack:** Removed Spark and Kafka Connect to save ~3GB of RAM.
-    * **Direct Sinks:** Processing engine writes directly to the Database and Cold Storage.
-    * **No Schema Registry:** Use static Avro schema files within the application code to avoid running a dedicated registry container.
+* **Hardware Constraints Strategy ("The Lean Stack"):**
+    * **Lean Stack:** Removed Spark and Kafka Connect (saves ~3GB).
+    * **Stricter Memory Capping:** Limit Docker containers to ~2.5GB combined to leave room for the OS and Python logic.
+    * **Direct Sinks:** Processing engine writes directly to the Database.
+    * **No Schema Registry:** Use static Avro schemas to avoid extra containers.
 
 ### 🤖 Layer II: Data Modeling & Simulation (The Source)
 *Objective: Generate realistic, high-frequency industrial telemetry.*
