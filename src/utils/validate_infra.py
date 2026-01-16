@@ -54,13 +54,52 @@ def validate_grafana():
         print(f"❌ Grafana validation failed: {e}")
         return False
 
+import subprocess
+import json
+
+def validate_docker_health(container_name):
+    print(f"Checking Docker health for {container_name}...")
+    try:
+        result = subprocess.run(
+            ["docker", "inspect", "--format", "{{json .State.Health.Status}}", container_name],
+            capture_output=True, text=True, check=False
+        )
+        if result.returncode != 0:
+             # Fallback for containers without explicit healthchecks or if container not found
+            print(f"⚠️  Could not check health for {container_name} (might not be running or no healthcheck defined).")
+            return False
+            
+        status = result.stdout.strip().replace('"', '')
+        if status == "healthy":
+            print(f"✅ {container_name} is healthy.")
+            return True
+        else:
+            print(f"❌ {container_name} is {status}!")
+            return False
+    except FileNotFoundError:
+        print("❌ Docker command not found. Is Docker installed?")
+        return False
+
 if __name__ == "__main__":
     print("--- Infrastructure Validation ---")
-    kafka_ok = validate_kafka()
-    pg_ok = validate_postgres()
-    grafana_ok = validate_grafana()
+    
+    # 1. Docker Level Checks
+    print("\n[Docker Container Health]")
+    kafka_health = validate_docker_health("kafka")
+    pg_health = validate_docker_health("timescaledb")
+    grafana_health = validate_docker_health("grafana")
+    
+    container_health_ok = kafka_health and pg_health and grafana_health
 
-    if kafka_ok and pg_ok and grafana_ok:
-        print("\n🚀 All infrastructure services are validated!")
+    # 2. Application Level Checks
+    print("\n[Application Connectivity]")
+    kafka_conn = validate_kafka()
+    pg_conn = validate_postgres()
+    grafana_conn = validate_grafana()
+    
+    app_conn_ok = kafka_conn and pg_conn and grafana_conn
+
+    if container_health_ok and app_conn_ok:
+        print("\n🚀 All infrastructure services are validated and healthy!")
     else:
-        print("\n⚠️ Some services failed validation. Ensure docker-compose is running.")
+        print("\n⚠️ Some services failed validation. Please check the logs.")
