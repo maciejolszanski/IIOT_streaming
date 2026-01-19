@@ -1,3 +1,18 @@
+"""
+Debug Consumer Utility
+----------------------
+A lightweight Kafka consumer designed for troubleshooting and data visibility.
+
+Main Features:
+- Subscribes to the raw telemetry topic.
+- Deserializes binary Avro payloads using the project schema.
+- Prints decoded JSON records directly to the console.
+
+Usage:
+    python src/utils/debug_consumer.py
+
+Note: This is a read-only tool and does not persist data to the database.
+"""
 import os
 import io
 import json
