@@ -47,6 +47,33 @@ Running `pytest` will automatically:
 2. Generate a terminal coverage report.
 3. Generate a detailed HTML coverage report in the `htmlcov/` directory.
 
+### 5. Code Quality & CI
+The project uses `ruff` for linting/formatting and `mypy` for static type checking.
+
+#### Linting & Formatting
+```powershell
+ruff check .      # Check for errors
+ruff format .     # Format code
+```
+
+#### Type Checking
+```powershell
+mypy src
+```
+
+#### Pre-commit Hooks
+To ensure high code quality, we use `pre-commit`. Install the hooks locally:
+```powershell
+pre-commit install
+```
+Hooks will now run automatically on every `git commit`.
+
+#### Continuous Integration
+Every push and Pull Request to `master` triggers a GitHub Actions workflow which:
+- Runs `ruff` checks.
+- Runs `mypy` type checking.
+- Runs `pytest` and uploads coverage data.
+
 ### 5. Running the Components
 #### Start the Simulator (Producer)
 ```powershell
