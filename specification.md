@@ -29,12 +29,14 @@
 *Objective: Generate realistic, high-frequency industrial telemetry.*
 
 * **Data Format:** **Avro** (Binary, efficient, schema-enforced).
-* **Simulation Logic (Python):**
+    * **Simulation Logic (Python):**
     * **Physics Engine:** Simulate temperature rise based on "engine load".
+    * **Asynchronous Execution:** Use `asyncio` to simulate multiple independent machines running concurrently.
     * **Chaos Engineering:** Random injection of:
         * *Spikes:* Sudden value jumps.
         * *Drift:* Gradual sensor de-calibration.
         * *Packet Loss:* Missing data points.
+        * *Sensor Silence:* Total dropout of a machine for a random duration to test system robustness against missing heartbeat.
 * **Attributes:** `machine_id`, `timestamp` (precision: ms), `sensor_type` (vibration, temp, pressure), `value`, `status_code`.
 
 ### 📡 Layer III: Ingestion Layer (Transport)
@@ -70,7 +72,7 @@
 ### 🏃 Sprint 1: The "Walking Skeleton" (MVP)
 *Goal: End-to-End connectivity with direct ingestion.*
 1.  Setup `docker-compose` (Kafka, Postgres/Timescale, Grafana).
-2.  Develop Python Producer (Simulator) sending Avro events to Kafka.
+2.  Develop basic Python Producer (Simulator) sending Avro events to Kafka.
 3.  Develop a simple Python Consumer to move data from Kafka to Postgres.
 4.  Visualize raw data in Grafana.
 
@@ -86,9 +88,15 @@
 2.  Trigger "Chaos" events in the simulator.
 3.  Verify system stability under simulated network lag and high load.
 
-### 🚀 Sprint 4: Final Polish
+### ⚡ Sprint 4: Performance & Advanced Simulation
+*Goal: Scalability and realistic chaos.*
+1.  Refactor Simulator to use `asyncio` for independent machine tasks.
+2.  Implement "Sensor Silence" dropouts to test pipeline robustness.
+3.  Performance tuning (memory limits, producer batch sizes, Kafka partitioning).
+
+### 🚀 Sprint 5: Final Polish
 1.  Grafana dashboard refinement.
-2.  Performance tuning (memory limits, batch sizes).
+2.  System-wide stress test.
 3.  Detailed documentation.
 
 ---
