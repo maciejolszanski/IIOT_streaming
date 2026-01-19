@@ -41,6 +41,9 @@ python src/utils/validate_infra.py
 Run the unit test suite:
 ```powershell
 pytest
+
+# With coverage report
+pytest --cov=src tests/
 ```
 
 ### 5. Running the Components
