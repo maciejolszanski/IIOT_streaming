@@ -44,7 +44,11 @@ class TelemetrySimulator:
             'linger.ms': 100,
             'compression.type': 'snappy'
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> origin/master
         for attempt in range(1, RETRY_ATTEMPTS + 1):  # pragma: no cover
             try:
                 producer = Producer(producer_conf)

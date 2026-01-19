@@ -74,7 +74,7 @@ Every push and Pull Request to `master` triggers a GitHub Actions workflow which
 - Runs `mypy` type checking.
 - Runs `pytest` and uploads coverage data.
 
-### 5. Running the Components
+### 6. Running the Components
 #### Start the Simulator (Producer)
 ```powershell
 python src/producers/simulator.py

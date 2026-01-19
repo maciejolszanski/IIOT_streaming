@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import io
 import os
 import sys
@@ -5,13 +6,26 @@ from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
 import pytest
+=======
+import pytest
+import os
+import sys
+from datetime import datetime, timezone
+from unittest.mock import MagicMock, patch, ANY
+import psycopg2
+import io
+>>>>>>> origin/master
 from fastavro import schemaless_writer
 
 # Ensure src is in path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+<<<<<<< HEAD
 from src.consumers.telemetry_consumer import AvroTransformer, TelemetryConsumer, TimescaleSink
 
+=======
+from src.consumers.telemetry_consumer import TelemetryConsumer, AvroTransformer, TimescaleSink
+>>>>>>> origin/master
 
 # --- AvroTransformer Tests ---
 def test_transformer_init_success():
@@ -45,7 +59,11 @@ def test_transformer_to_sql_tuple():
 @patch('psycopg2.connect')
 def test_sink_connect_and_schema(mock_connect):
     mock_cursor = mock_connect.return_value.cursor.return_value.__enter__.return_value
+<<<<<<< HEAD
     TimescaleSink()
+=======
+    sink = TimescaleSink()
+>>>>>>> origin/master
     assert mock_connect.called
     assert mock_cursor.execute.called
 
@@ -53,7 +71,11 @@ def test_sink_connect_and_schema(mock_connect):
 @patch('time.sleep', return_value=None)
 def test_sink_connect_retries(mock_sleep, mock_connect):
     mock_connect.side_effect = [Exception("Fail"), MagicMock()]
+<<<<<<< HEAD
     TimescaleSink()
+=======
+    sink = TimescaleSink()
+>>>>>>> origin/master
     assert mock_connect.call_count == 2
 
 @patch('psycopg2.connect')
@@ -80,7 +102,11 @@ class MockError(Exception):
 def test_sink_ensure_schema_hypertable_exists(mock_connect):
     mock_cursor = mock_connect.return_value.cursor.return_value.__enter__.return_value
     mock_cursor.execute.side_effect = [None, MockError('42101'), None]
+<<<<<<< HEAD
     TimescaleSink()
+=======
+    sink = TimescaleSink()
+>>>>>>> origin/master
     mock_connect.return_value.rollback.assert_called_once()
 
 @patch('psycopg2.connect')
@@ -112,7 +138,11 @@ def test_sink_write_batch_failure(mock_connect):
 def test_consumer_setup_kafka_retries(mock_trans, mock_sink, mock_kafka):
     mock_kafka.side_effect = [Exception("Fail"), MagicMock()]
     with patch('time.sleep'):
+<<<<<<< HEAD
         TelemetryConsumer()
+=======
+        app = TelemetryConsumer()
+>>>>>>> origin/master
     assert mock_kafka.call_count == 2
 
 @patch('src.consumers.telemetry_consumer.Consumer')
@@ -133,13 +163,21 @@ def test_consumer_process_message_branches(mock_trans_cls, mock_sink_cls, mock_k
     msg.value.return_value = b'corrupt'
     app.transformer.deserialize.side_effect = Exception("Corrupt")
     app._process_message(msg, 50)
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> origin/master
     app.transformer.deserialize.side_effect = None
     app.transformer.to_sql_tuple.return_value = (None, 'M1', 'T', 1.0, 0)
     app.batch = []
     app._process_message(msg, batch_size=10)
     assert len(app.batch) == 1
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> origin/master
     with patch.object(app, '_flush') as mock_flush:
         app._process_message(msg, batch_size=1)
         mock_flush.assert_called_once()
@@ -152,12 +190,20 @@ def test_consumer_flush_branches(mock_trans, mock_sink, mock_kafka):
     app.batch = []
     app._flush()
     app.sink.write_batch.assert_not_called()
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> origin/master
     app.batch = [('data')]
     app.sink.write_batch.return_value = True
     app._flush()
     app.consumer.commit.assert_called_once()
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> origin/master
     app.batch = [('data')]
     app.sink.write_batch.return_value = False
     app._flush()
