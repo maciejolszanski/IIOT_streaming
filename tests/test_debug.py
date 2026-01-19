@@ -1,48 +1,26 @@
-<<<<<<< HEAD
-import os
-import sys
-from unittest.mock import MagicMock, patch
-=======
 import pytest
 from unittest.mock import MagicMock, patch
 import os
 import sys
->>>>>>> origin/master
 
 # Ensure src is in path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.utils.debug_consumer import DebugConsumer
 
-<<<<<<< HEAD
-
-@patch('src.utils.debug_consumer.Consumer')
-def test_debug_consumer_misc(mock_kafka_cls):
-    consumer = DebugConsumer()
-
-=======
 @patch('src.utils.debug_consumer.Consumer')
 def test_debug_consumer_misc(mock_kafka_cls):
     consumer = DebugConsumer()
     
->>>>>>> origin/master
     # Test deserialize
     with patch('src.utils.debug_consumer.schemaless_reader', return_value={'ok': 1}):
         res = consumer._deserialize_avro(b'abc')
         assert res == {'ok': 1}
-<<<<<<< HEAD
-
-    # Test msg is None
-    consumer.consumer.poll.side_effect = [None, KeyboardInterrupt()]
-    consumer.run()
-
-=======
     
     # Test msg is None
     consumer.consumer.poll.side_effect = [None, KeyboardInterrupt()]
     consumer.run()
     
->>>>>>> origin/master
     # Test partition EOF
     mock_eof = MagicMock()
     # KafkaError._PARTITION_EOF is usually -176 or similar, we should use the actual constant if possible
@@ -58,11 +36,7 @@ def test_debug_consumer_count_limit(mock_kafka_cls):
     mock_msg.error.return_value = None
     mock_msg.value.return_value = b'v'
     mock_msg.key.return_value = b'k'
-<<<<<<< HEAD
-
-=======
     
->>>>>>> origin/master
     with patch.object(consumer, '_deserialize_avro', return_value={}):
         consumer.consumer.poll.return_value = mock_msg
         consumer.run(max_messages=2)
@@ -71,28 +45,16 @@ def test_debug_consumer_count_limit(mock_kafka_cls):
 @patch('src.utils.debug_consumer.Consumer')
 def test_debug_consumer_errors(mock_kafka_cls):
     consumer = DebugConsumer()
-<<<<<<< HEAD
-
-    # Other error
-    mock_msg_other = MagicMock()
-    mock_msg_other.error.return_value.code.return_value = -999
-
-=======
     
     # Other error
     mock_msg_other = MagicMock()
     mock_msg_other.error.return_value.code.return_value = -999
     
->>>>>>> origin/master
     # Deserialization error
     mock_msg_valid = MagicMock()
     mock_msg_valid.error.return_value = None
     mock_msg_valid.value.return_value = b'v'
-<<<<<<< HEAD
-
-=======
     
->>>>>>> origin/master
     with patch.object(consumer, '_deserialize_avro', side_effect=Exception("Fail")):
         consumer.consumer.poll.side_effect = [mock_msg_other, mock_msg_valid, KeyboardInterrupt()]
         consumer.run(max_messages=10)
