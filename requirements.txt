@@ -4,3 +4,5 @@ requests
 bytewax
 avro
 fastavro
+pytest
+pytest-mock

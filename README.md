@@ -29,6 +29,7 @@ Start the core services (Kafka, TimescaleDB, Grafana):
 docker-compose up -d
 ```
 
+
 ### 3. Validation
 Install dependencies and verify the environment:
 ```powershell
@@ -36,7 +37,13 @@ pip install -r requirements.txt
 python src/utils/validate_infra.py
 ```
 
-### 4. Running the Components
+### 4. Testing
+Run the unit test suite:
+```powershell
+pytest
+```
+
+### 5. Running the Components
 #### Start the Simulator (Producer)
 ```powershell
 python src/producers/simulator.py
