@@ -72,7 +72,7 @@ def validate_grafana():
         print(f"❌ Grafana validation failed: {e}")
         return False
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     print("--- Infrastructure Validation ---")
     
     # 1. Docker Level Checks

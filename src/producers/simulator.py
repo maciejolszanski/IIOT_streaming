@@ -45,7 +45,7 @@ class TelemetrySimulator:
             'compression.type': 'snappy'
         }
         
-        for attempt in range(1, RETRY_ATTEMPTS + 1):
+        for attempt in range(1, RETRY_ATTEMPTS + 1):  # pragma: no cover
             try:
                 producer = Producer(producer_conf)
                 # Test connectivity
@@ -127,6 +127,6 @@ class TelemetrySimulator:
             logger.info("🛑 Simulator stopped. Flushing remaining messages...")
             self.producer.flush(timeout=10)
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     simulator = TelemetrySimulator()
     simulator.run()
