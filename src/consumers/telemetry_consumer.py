@@ -28,13 +28,15 @@ RETRY_WAIT_SECONDS = int(os.getenv("RETRY_WAIT_SECONDS", "5"))
 # --- Setup Logging ---
 logging.basicConfig(
     level=getattr(logging, LOG_LEVEL, logging.INFO),
-    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger(__name__)
 
+
 class AvroTransformer:
     """Handles deserialization and mapping of Avro records to SQL tuples."""
+
     def __init__(self, schema_path):
         if not os.path.exists(schema_path):
             raise FileNotFoundError(f"Missing schema at {schema_path}")
@@ -43,22 +45,24 @@ class AvroTransformer:
 
     def deserialize(self, payload):
         bytes_io = io.BytesIO(payload)
-        return schemaless_reader(bytes_io, self.schema)
+        return schemaless_reader(bytes_io, self.schema, None)
 
     def to_sql_tuple(self, record):
         """Converts raw Avro dict to a tuple suitable for Postgres INSERT."""
-        ts_ms = record.get('timestamp', int(time.time() * 1000))
+        ts_ms = record.get("timestamp", int(time.time() * 1000))
         dt = datetime.fromtimestamp(ts_ms / 1000.0, tz=timezone.utc)
         return (
             dt,
-            record.get('machine_id', 'Unknown'),
-            record.get('sensor_type', 'Unknown'),
-            record.get('value', 0.0),
-            record.get('status_code', 0)
+            record.get("machine_id", "Unknown"),
+            record.get("sensor_type", "Unknown"),
+            record.get("value", 0.0),
+            record.get("status_code", 0),
         )
+
 
 class TimescaleSink:
     """Handles all Database interactions: connection, schema, and batch writing."""
+
     def __init__(self):
         self.conn = self._connect()
         self._ensure_schema()
@@ -89,7 +93,7 @@ class TimescaleSink:
             try:
                 cur.execute("SELECT create_hypertable('telemetry', 'event_time');")
             except psycopg2.Error as e:
-                if e.pgcode != '42101':
+                if e.pgcode != "42101":
                     raise
                 self.conn.rollback()
             cur.execute("""
@@ -115,8 +119,10 @@ class TimescaleSink:
         if self.conn:
             self.conn.close()
 
+
 class TelemetryConsumer:
     """Orchestrator: Coordinates between KafkaSource, Transformer, and Sink."""
+
     def __init__(self):
         self.transformer = AvroTransformer(SCHEMA_PATH)
         self.sink = TimescaleSink()
@@ -125,10 +131,10 @@ class TelemetryConsumer:
 
     def _setup_kafka(self):
         conf = {
-            'bootstrap.servers': KAFKA_BOOTSTRAP_SERVERS,
-            'group.id': GROUP_ID,
-            'auto.offset.reset': 'earliest',
-            'enable.auto.commit': False
+            "bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
+            "group.id": GROUP_ID,
+            "auto.offset.reset": "earliest",
+            "enable.auto.commit": False,
         }
         for attempt in range(1, RETRY_ATTEMPTS + 1):
             try:
@@ -180,6 +186,7 @@ class TelemetryConsumer:
     def _cleanup(self):
         self.consumer.close()
         self.sink.close()
+
 
 if __name__ == "__main__":  # pragma: no cover
     TelemetryConsumer().run()

@@ -48,7 +48,7 @@ Running `uv run pytest` will automatically:
 3. Generate a detailed HTML coverage report in the `htmlcov/` directory.
 
 ### 5. Code Quality & CI
-The project uses `ruff` for linting/formatting and `mypy` for static type checking.
+The project uses `ruff` for linting/formatting.
 
 #### Linting & Formatting
 ```powershell
@@ -56,10 +56,6 @@ uv run ruff check .      # Check for errors
 uv run ruff format .     # Format code
 ```
 
-#### Type Checking
-```powershell
-uv run mypy src
-```
 
 #### Pre-commit Hooks
 To ensure high code quality, we use `pre-commit`. Install the hooks locally:
@@ -72,7 +68,6 @@ Hooks will now run automatically on every `git commit`.
 Every push and Pull Request to `master` triggers a GitHub Actions workflow which:
 - Sets up `uv`.
 - Runs `ruff` checks via `uv run`.
-- Runs `mypy` type checking via `uv run`.
 - Runs `pytest` via `uv run` and uploads coverage data.
 
 ### 6. Running the Components

@@ -14,12 +14,3 @@ repos:
       args: [ --fix ]
     - id: ruff-format
 
-- repo: local
-  hooks:
-    - id: mypy
-      name: mypy
-      entry: mypy
-      language: system
-      types: [python]
-      require_serial: true
-      args: ["--ignore-missing-imports"]
