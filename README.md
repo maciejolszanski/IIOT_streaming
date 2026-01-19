@@ -33,16 +33,16 @@ docker-compose up -d
 ### 3. Validation
 Install dependencies and verify the environment:
 ```powershell
-pip install -r requirements.txt
-python src/utils/validate_infra.py
+uv sync --all-groups
+uv run python src/utils/validate_infra.py
 ```
 
 ### 4. Testing
 Run the unit test suite:
 ```powershell
-pytest
+uv run pytest
 ```
-Running `pytest` will automatically:
+Running `uv run pytest` will automatically:
 1. Execute all tests in the `tests/` directory.
 2. Generate a terminal coverage report.
 3. Generate a detailed HTML coverage report in the `htmlcov/` directory.
@@ -52,37 +52,38 @@ The project uses `ruff` for linting/formatting and `mypy` for static type checki
 
 #### Linting & Formatting
 ```powershell
-ruff check .      # Check for errors
-ruff format .     # Format code
+uv run ruff check .      # Check for errors
+uv run ruff format .     # Format code
 ```
 
 #### Type Checking
 ```powershell
-mypy src
+uv run mypy src
 ```
 
 #### Pre-commit Hooks
 To ensure high code quality, we use `pre-commit`. Install the hooks locally:
 ```powershell
-pre-commit install
+uv run pre-commit install
 ```
 Hooks will now run automatically on every `git commit`.
 
 #### Continuous Integration
 Every push and Pull Request to `master` triggers a GitHub Actions workflow which:
-- Runs `ruff` checks.
-- Runs `mypy` type checking.
-- Runs `pytest` and uploads coverage data.
+- Sets up `uv`.
+- Runs `ruff` checks via `uv run`.
+- Runs `mypy` type checking via `uv run`.
+- Runs `pytest` via `uv run` and uploads coverage data.
 
 ### 6. Running the Components
 #### Start the Simulator (Producer)
 ```powershell
-python src/producers/simulator.py
+uv run python src/producers/simulator.py
 ```
 
 #### Start the Telemetry Consumer (Sink)
 ```powershell
-python src/consumers/telemetry_consumer.py
+uv run python src/consumers/telemetry_consumer.py
 ```
 
 ## 🛠️ Components
