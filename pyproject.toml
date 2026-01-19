@@ -1,0 +1,33 @@
+[project]
+name = "iiot-streaming"
+version = "0.1.0"
+description = "Industrial IoT Real-Time Monitoring POC"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "confluent-kafka",
+    "psycopg2-binary",
+    "requests",
+    "avro",
+    "fastavro",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-mock",
+    "pytest-cov",
+    "ruff",
+    "pre-commit",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "C90"]
+ignore = []
+
+[tool.uv]
+managed = true

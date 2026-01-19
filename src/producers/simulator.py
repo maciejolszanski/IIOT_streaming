@@ -1,12 +1,13 @@
-import os
-import time
-import random
 import io
 import json
 import logging
-from fastavro import parse_schema, schemaless_writer
-from confluent_kafka import Producer
+import os
+import random
+import time
+from typing import Any
 
+from confluent_kafka import Producer
+from fastavro import parse_schema, schemaless_writer
 
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9094")
 TOPIC_NAME = os.getenv("TOPIC_NAME", "telemetry_raw")
@@ -19,8 +20,8 @@ RETRY_WAIT_SECONDS = int(os.getenv("RETRY_WAIT_SECONDS", "5"))
 
 logging.basicConfig(
     level=getattr(logging, LOG_LEVEL, logging.INFO),
-    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger(__name__)
 
@@ -38,13 +39,13 @@ class TelemetrySimulator:
 
     def _setup_producer(self):
         """Initializes the Kafka producer with retry logic."""
-        producer_conf = {
-            'bootstrap.servers': KAFKA_BOOTSTRAP_SERVERS,
-            'client.id': 'telemetry-simulator',
-            'linger.ms': 100,
-            'compression.type': 'snappy'
+        producer_conf: dict[str, Any] = {
+            "bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
+            "client.id": "telemetry-simulator",
+            "linger.ms": 100,
+            "compression.type": "snappy",
         }
-        
+
         for attempt in range(1, RETRY_ATTEMPTS + 1):  # pragma: no cover
             try:
                 producer = Producer(producer_conf)
@@ -69,15 +70,11 @@ class TelemetrySimulator:
         temp = self.state[machine_id]["temp_base"] + (load * 30.0) + random.uniform(-2, 2)
         vibe = self.state[machine_id]["vibration_base"] + (load * 0.1) + random.uniform(-0.01, 0.01)
 
-        if random.random() < 0.01: # 1% chance for a spike
+        if random.random() < 0.01:  # 1% chance for a spike
             temp += 20.0
             logger.warning(f"🔥 CHAOS: Temperature spike detected for machine {machine_id}!")
 
-        sensors = [
-            ("temperature", temp),
-            ("vibration", vibe),
-            ("pressure", 100.0 + random.uniform(-5, 5))
-        ]
+        sensors = [("temperature", temp), ("vibration", vibe), ("pressure", 100.0 + random.uniform(-5, 5))]
 
         messages = []
         for s_type, s_val in sensors:
@@ -86,10 +83,10 @@ class TelemetrySimulator:
                 "timestamp": int(time.time() * 1000),
                 "sensor_type": s_type,
                 "value": float(s_val),
-                "status_code": 0
+                "status_code": 0,
             }
             messages.append(msg)
-        
+
         return messages
 
     def _serialize_avro(self, record):
@@ -113,19 +110,15 @@ class TelemetrySimulator:
                     for record in batch:
                         avro_bytes = self._serialize_avro(record)
                         logger.debug(f"Producing {record['sensor_type']}={record['value']:.2f} for {m_id}")
-                        self.producer.produce(
-                            TOPIC_NAME, 
-                            value=avro_bytes, 
-                            key=m_id, 
-                            on_delivery=self.delivery_report
-                        )
-                
+                        self.producer.produce(TOPIC_NAME, value=avro_bytes, key=m_id, on_delivery=self.delivery_report)
+
                 # Call poll regularly to serve delivery reports
                 self.producer.poll(0)
-                time.sleep(1.0) # Send batch every second
+                time.sleep(1.0)  # Send batch every second
         except KeyboardInterrupt:
             logger.info("🛑 Simulator stopped. Flushing remaining messages...")
             self.producer.flush(timeout=10)
+
 
 if __name__ == "__main__":  # pragma: no cover
     simulator = TelemetrySimulator()

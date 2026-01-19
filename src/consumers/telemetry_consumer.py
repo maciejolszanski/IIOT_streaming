@@ -1,13 +1,14 @@
-import os
-import time
 import io
 import json
 import logging
+import os
+import time
 from datetime import datetime, timezone
+
 import psycopg2
-from psycopg2.extras import execute_values
+from confluent_kafka import Consumer
 from fastavro import parse_schema, schemaless_reader
-from confluent_kafka import Consumer, KafkaError
+from psycopg2.extras import execute_values
 
 # --- Configuration ---
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9094")
@@ -27,13 +28,15 @@ RETRY_WAIT_SECONDS = int(os.getenv("RETRY_WAIT_SECONDS", "5"))
 # --- Setup Logging ---
 logging.basicConfig(
     level=getattr(logging, LOG_LEVEL, logging.INFO),
-    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger(__name__)
 
+
 class AvroTransformer:
     """Handles deserialization and mapping of Avro records to SQL tuples."""
+
     def __init__(self, schema_path):
         if not os.path.exists(schema_path):
             raise FileNotFoundError(f"Missing schema at {schema_path}")
@@ -42,22 +45,24 @@ class AvroTransformer:
 
     def deserialize(self, payload):
         bytes_io = io.BytesIO(payload)
-        return schemaless_reader(bytes_io, self.schema)
+        return schemaless_reader(bytes_io, self.schema, None)
 
     def to_sql_tuple(self, record):
         """Converts raw Avro dict to a tuple suitable for Postgres INSERT."""
-        ts_ms = record.get('timestamp', int(time.time() * 1000))
+        ts_ms = record.get("timestamp", int(time.time() * 1000))
         dt = datetime.fromtimestamp(ts_ms / 1000.0, tz=timezone.utc)
         return (
             dt,
-            record.get('machine_id', 'Unknown'),
-            record.get('sensor_type', 'Unknown'),
-            record.get('value', 0.0),
-            record.get('status_code', 0)
+            record.get("machine_id", "Unknown"),
+            record.get("sensor_type", "Unknown"),
+            record.get("value", 0.0),
+            record.get("status_code", 0),
         )
+
 
 class TimescaleSink:
     """Handles all Database interactions: connection, schema, and batch writing."""
+
     def __init__(self):
         self.conn = self._connect()
         self._ensure_schema()
@@ -69,7 +74,8 @@ class TimescaleSink:
                 logger.info(f"Connected to TimescaleDB on attempt {attempt}")
                 return conn
             except Exception as e:
-                if attempt == RETRY_ATTEMPTS: raise
+                if attempt == RETRY_ATTEMPTS:
+                    raise
                 logger.warning(f"DB connection attempt {attempt} failed: {e}")
                 time.sleep(RETRY_WAIT_SECONDS)
 
@@ -87,9 +93,13 @@ class TimescaleSink:
             try:
                 cur.execute("SELECT create_hypertable('telemetry', 'event_time');")
             except psycopg2.Error as e:
-                if e.pgcode != '42101': raise
+                if e.pgcode != "42101":
+                    raise
                 self.conn.rollback()
-            cur.execute("CREATE INDEX IF NOT EXISTS idx_telemetry_machine_time ON telemetry (machine_id, event_time DESC);")
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idx_telemetry_machine_time
+                ON telemetry (machine_id, event_time DESC);
+            """)
             self.conn.commit()
 
     def write_batch(self, batch):
@@ -106,10 +116,13 @@ class TimescaleSink:
             return False
 
     def close(self):
-        if self.conn: self.conn.close()
+        if self.conn:
+            self.conn.close()
+
 
 class TelemetryConsumer:
     """Orchestrator: Coordinates between KafkaSource, Transformer, and Sink."""
+
     def __init__(self):
         self.transformer = AvroTransformer(SCHEMA_PATH)
         self.sink = TimescaleSink()
@@ -118,10 +131,10 @@ class TelemetryConsumer:
 
     def _setup_kafka(self):
         conf = {
-            'bootstrap.servers': KAFKA_BOOTSTRAP_SERVERS,
-            'group.id': GROUP_ID,
-            'auto.offset.reset': 'earliest',
-            'enable.auto.commit': False
+            "bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
+            "group.id": GROUP_ID,
+            "auto.offset.reset": "earliest",
+            "enable.auto.commit": False,
         }
         for attempt in range(1, RETRY_ATTEMPTS + 1):
             try:
@@ -129,8 +142,9 @@ class TelemetryConsumer:
                 c.list_topics(timeout=2)
                 c.subscribe([TOPIC_NAME])
                 return c
-            except Exception as e:
-                if attempt == RETRY_ATTEMPTS: raise
+            except Exception:
+                if attempt == RETRY_ATTEMPTS:
+                    raise
                 time.sleep(RETRY_WAIT_SECONDS)
 
     def run(self, batch_size=50):
@@ -144,7 +158,7 @@ class TelemetryConsumer:
                 if msg.error():
                     logger.error(f"Kafka Error: {msg.error()}")
                     break
-                
+
                 self._process_message(msg, batch_size)
         except KeyboardInterrupt:
             logger.info("🛑 Shutting down...")
@@ -162,7 +176,8 @@ class TelemetryConsumer:
             logger.error(f"Failed to process message: {e}")
 
     def _flush(self):
-        if not self.batch: return
+        if not self.batch:
+            return
         if self.sink.write_batch(self.batch):
             self.consumer.commit(asynchronous=False)
             logger.info(f"📦 Flushed {len(self.batch)} records")
@@ -171,6 +186,7 @@ class TelemetryConsumer:
     def _cleanup(self):
         self.consumer.close()
         self.sink.close()
+
 
 if __name__ == "__main__":  # pragma: no cover
     TelemetryConsumer().run()

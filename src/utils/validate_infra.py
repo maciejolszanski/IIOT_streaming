@@ -1,7 +1,10 @@
 import subprocess
-import requests
+from typing import Any
+
 import psycopg2
+import requests
 from confluent_kafka.admin import AdminClient
+
 
 def validate_docker_health(container_name):
     """Checks if a Docker container is reporting a 'healthy' status."""
@@ -9,13 +12,15 @@ def validate_docker_health(container_name):
     try:
         result = subprocess.run(
             ["docker", "inspect", "--format", "{{json .State.Health.Status}}", container_name],
-            capture_output=True, text=True, check=False
+            capture_output=True,
+            text=True,
+            check=False,
         )
         if result.returncode != 0:
             print(f"⚠️  Could not check health for {container_name} (container not found or no healthcheck defined).")
             return False
-            
-        status = result.stdout.strip().replace('"', '')
+
+        status = result.stdout.strip().replace('"', "")
         if status == "healthy":
             print(f"✅ {container_name} is healthy.")
             return True
@@ -26,10 +31,11 @@ def validate_docker_health(container_name):
         print("❌ Docker command not found. Is Docker installed?")
         return False
 
+
 def validate_kafka():
     """Validates Kafka connectivity by listing topics."""
     print("Checking Kafka (localhost:9094)...")
-    conf = {'bootstrap.servers': 'localhost:9094'}
+    conf: dict[str, Any] = {"bootstrap.servers": "localhost:9094"}
     try:
         admin_client = AdminClient(conf)
         admin_client.list_topics(timeout=10)
@@ -39,16 +45,13 @@ def validate_kafka():
         print(f"❌ Kafka validation failed: {e}")
         return False
 
+
 def validate_postgres():
     """Validates TimescaleDB connectivity."""
     print("Checking TimescaleDB (localhost:5432)...")
     try:
         conn = psycopg2.connect(
-            dbname="iiot_db",
-            user="iiot_user",
-            password="iiot_password",
-            host="localhost",
-            port="5432"
+            dbname="iiot_db", user="iiot_user", password="iiot_password", host="localhost", port="5432"
         )
         conn.close()
         print("✅ TimescaleDB is up and reachable.")
@@ -56,6 +59,7 @@ def validate_postgres():
     except Exception as e:
         print(f"❌ TimescaleDB validation failed: {e}")
         return False
+
 
 def validate_grafana():
     """Validates Grafana availability via health API."""
@@ -72,9 +76,10 @@ def validate_grafana():
         print(f"❌ Grafana validation failed: {e}")
         return False
 
+
 if __name__ == "__main__":  # pragma: no cover
     print("--- Infrastructure Validation ---")
-    
+
     # 1. Docker Level Checks
     print("\n[Docker Container Health]")
     services = ["kafka", "timescaledb", "grafana"]
