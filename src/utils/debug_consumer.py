@@ -13,11 +13,12 @@ Usage:
 
 Note: This is a read-only tool and does not persist data to the database.
 """
-import os
 import io
 import json
-from fastavro import parse_schema, schemaless_reader
+import os
+
 from confluent_kafka import Consumer, KafkaError
+from fastavro import parse_schema, schemaless_reader
 
 # Configuration
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9094")

@@ -1,7 +1,9 @@
 import subprocess
-import requests
+
 import psycopg2
+import requests
 from confluent_kafka.admin import AdminClient
+
 
 def validate_docker_health(container_name):
     """Checks if a Docker container is reporting a 'healthy' status."""
@@ -14,7 +16,7 @@ def validate_docker_health(container_name):
         if result.returncode != 0:
             print(f"⚠️  Could not check health for {container_name} (container not found or no healthcheck defined).")
             return False
-            
+
         status = result.stdout.strip().replace('"', '')
         if status == "healthy":
             print(f"✅ {container_name} is healthy.")
@@ -74,7 +76,7 @@ def validate_grafana():
 
 if __name__ == "__main__":  # pragma: no cover
     print("--- Infrastructure Validation ---")
-    
+
     # 1. Docker Level Checks
     print("\n[Docker Container Health]")
     services = ["kafka", "timescaledb", "grafana"]

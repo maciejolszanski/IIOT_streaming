@@ -1,17 +1,18 @@
-import pytest
-from unittest.mock import MagicMock, patch
 import os
 import sys
-import json
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 # Ensure src is in path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# We need to set ENV vars potentially before import if they are read at module level, 
+# We need to set ENV vars potentially before import if they are read at module level,
 # but they have defaults, so it's fine.
 # However, SCHEMA_PATH relies on relative path.
 
 from src.producers.simulator import TelemetrySimulator
+
 
 @pytest.fixture
 def mock_producer_cls():
@@ -34,11 +35,11 @@ def test_initialization(simulator):
 def test_generate_telemetry_structure(simulator):
     batch = simulator._generate_telemetry("M001")
     assert len(batch) == 3
-    
+
     sensor_types = {msg['sensor_type'] for msg in batch}
     expected_types = {"temperature", "vibration", "pressure"}
     assert sensor_types == expected_types
-    
+
     for msg in batch:
         assert msg['machine_id'] == "M001"
         assert isinstance(msg['timestamp'], int)
@@ -62,26 +63,26 @@ def test_run_produce_loop(simulator):
     # We can throw an exception to break the infinite loop
     simulator.producer.produce = MagicMock()
     simulator.producer.poll = MagicMock()
-    
+
     # Mock time.sleep to raise InterruptedError to break loop, or just run once?
-    # Better: mock the loop? No, that's hard. 
+    # Better: mock the loop? No, that's hard.
     # We can mock _generate_telemetry to return empty list or just verify generate telemetry is called.
-    
+
     # Let's just call _generate_telemetry and manually produce to verify logic if we can't easily break 'while True'
     # Or rely on KeyboardInterrupt strategy used in actual code.
-    pass 
+    pass
 
 @patch('time.sleep', side_effect=KeyboardInterrupt) # Break loop immediately
 def test_run_flow(mock_sleep, simulator):
     simulator.run()
-    # Check if produce was called 
+    # Check if produce was called
     assert simulator.producer.produce.call_count >= 9
 
 @patch('src.producers.simulator.Producer')
 @patch('time.sleep', return_value=None)
 def test_setup_producer_retries(mock_sleep, mock_producer_cls):
     mock_producer_cls.side_effect = [Exception("K-Fail"), MagicMock()]
-    sim = TelemetrySimulator()
+    TelemetrySimulator()
     assert mock_producer_cls.call_count == 2
 
 @patch('src.producers.simulator.Producer')
@@ -97,10 +98,10 @@ def test_delivery_report(simulator):
     mock_msg.key.return_value = b'M1'
     mock_msg.topic.return_value = 'T1'
     mock_msg.partition.return_value = 0
-    
+
     # Success branch
     simulator.delivery_report(None, mock_msg)
-    
+
     # Error branch
     simulator.delivery_report("Error", mock_msg)
 
@@ -114,5 +115,5 @@ def test_chaos_spike(simulator):
 
 def test_main_block_coverage():
     # Similar to consumer, just for line coverage
-    with patch('src.producers.simulator.TelemetrySimulator') as mock_sim:
+    with patch('src.producers.simulator.TelemetrySimulator'):
         pass

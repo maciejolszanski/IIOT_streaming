@@ -1,12 +1,12 @@
-import pytest
-from unittest.mock import MagicMock, patch
 import os
 import sys
+from unittest.mock import MagicMock, patch
 
 # Ensure src is in path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.utils.validate_infra import validate_docker_health, validate_kafka, validate_postgres, validate_grafana
+from src.utils.validate_infra import validate_docker_health, validate_grafana, validate_kafka, validate_postgres
+
 
 def test_validate_docker_health_success():
     with patch('subprocess.run') as mock_run:
@@ -28,7 +28,7 @@ def test_validate_docker_health_no_docker():
         assert validate_docker_health("test") is False
 
 def test_validate_kafka_success():
-    with patch('src.utils.validate_infra.AdminClient') as mock_admin:
+    with patch('src.utils.validate_infra.AdminClient'):
         assert validate_kafka() is True
 
 def test_validate_kafka_failure():
@@ -36,7 +36,7 @@ def test_validate_kafka_failure():
         assert validate_kafka() is False
 
 def test_validate_postgres_success():
-    with patch('psycopg2.connect') as mock_conn:
+    with patch('psycopg2.connect'):
         assert validate_postgres() is True
 
 def test_validate_postgres_failure():

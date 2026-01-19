@@ -7,3 +7,8 @@ fastavro
 pytest
 pytest-mock
 pytest-cov
+mypy
+ruff
+pre-commit
+types-requests
+types-psycopg2
