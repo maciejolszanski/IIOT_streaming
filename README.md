@@ -13,15 +13,17 @@ IIoT/
 │   ├── producers/       # Data simulation producers
 │   └── utils/           # Utility scripts (validation, etc.)
 ├── docker-compose.yml   # Infrastructure (Kafka, TimescaleDB, Grafana)
-├── requirements.txt     # Python dependencies
+├── pyproject.toml       # Python project configuration & dependencies
+├── uv.lock              # Dependency lockfile
 └── specification.md     # Detailed project specification
 ```
 
 ## 🚀 Getting Started
 
 ### 1. Prerequisites
-- Docker Desktop
-- Python 3.13
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (must be running)
+- [uv](https://docs.astral.sh/uv/) (Dependency manager)
+- Python 3.13+
 
 ### 2. Infrastructure Setup
 Start the core services (Kafka, TimescaleDB, Grafana):
