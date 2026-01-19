@@ -36,17 +36,15 @@ pip install -r requirements.txt
 python src/utils/validate_infra.py
 ```
 
-### 4. Running the Simulator
-Produce simulated telemetry data to Kafka:
+### 4. Running the Components
+#### Start the Simulator (Producer)
 ```powershell
-# Basic usage
 python src/producers/simulator.py
+```
 
-# With debug logging
-$env:LOG_LEVEL="DEBUG"; python src/producers/simulator.py
-
-# Simulating specific machines
-$env:MACHINE_IDS="CNC-01,CNC-02"; python src/producers/simulator.py
+#### Start the Telemetry Consumer (Sink)
+```powershell
+python src/consumers/telemetry_consumer.py
 ```
 
 ## 🛠️ Components
@@ -58,17 +56,26 @@ The simulator (`src/producers/simulator.py`) generates realistic industrial sens
 - **Resilience**: Automatic retry logic for Kafka connectivity.
 - **Performance**: Uses binary Avro with snappy compression and batching.
 
+### 📥 Telemetry Consumer
+The consumer (`src/consumers/telemetry_consumer.py`) orchestrates the data flow from Kafka to TimescaleDB:
+- **Avro Deserialization**: Efficiently decodes binary payloads using schemas.
+- **Batch Processing**: Groups records for optimized high-throughput database inserts.
+- **TimescaleDB Integration**: Automatically manages hypertable creation and indexing for time-series performance.
+- **Reliability**: Implements manual Kafka commits only after successful database persistence.
+
 #### Configuration (Environment Variables)
 | Variable | Default | Description |
 | :--- | :--- | :--- |
 | `KAFKA_BOOTSTRAP_SERVERS` | `localhost:9094` | Kafka broker address |
-| `LOG_LEVEL` | `INFO` | Logger verbosity (DEBUG, INFO, WARNING, ERROR) |
-| `MACHINE_IDS` | `M001,M002,M003` | Comma-separated list of machine identifiers |
-| `RETRY_ATTEMPTS` | `5` | Kafka connection retry count |
+| `DB_HOST` | `localhost` | TimescaleDB host |
+| `DB_NAME` | `iiot_db` | Database name |
+| `DB_USER` | `iiot_user` | Database user |
+| `LOG_LEVEL` | `INFO` | Logger verbosity |
+| `BATCH_SIZE` | `50` | Number of records per DB insert |
 
 ## 📊 Tech Stack
 - **Broker:** Kafka (KRaft mode)
-- **Database:** TimescaleDB (PostgreSQL)
+- **Database:** TimescaleDB (PostgreSQL plugin)
 - **Visualization:** Grafana
-- **Processing:** Python (Bytewax / Confluent-Kafka)
+- **Processing:** Python (Confluent-Kafka, Psycopg2, FastAvro)
 - **Serialization:** Avro

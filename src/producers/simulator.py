@@ -7,7 +7,7 @@ import logging
 from fastavro import parse_schema, schemaless_writer
 from confluent_kafka import Producer
 
-# Configuration
+
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9094")
 TOPIC_NAME = os.getenv("TOPIC_NAME", "telemetry_raw")
 SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "../../schemas/telemetry.avsc")
@@ -16,13 +16,14 @@ MACHINE_IDS = os.getenv("MACHINE_IDS", "M001,M002,M003").split(",")
 RETRY_ATTEMPTS = int(os.getenv("RETRY_ATTEMPTS", "5"))
 RETRY_WAIT_SECONDS = int(os.getenv("RETRY_WAIT_SECONDS", "5"))
 
-# Setup logging
+
 logging.basicConfig(
     level=getattr(logging, LOG_LEVEL, logging.INFO),
     format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 logger = logging.getLogger(__name__)
+
 
 class TelemetrySimulator:
     def __init__(self):
