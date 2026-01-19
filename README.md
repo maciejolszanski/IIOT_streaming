@@ -41,10 +41,11 @@ python src/utils/validate_infra.py
 Run the unit test suite:
 ```powershell
 pytest
-
-# With coverage report
-pytest --cov=src tests/
 ```
+Running `pytest` will automatically:
+1. Execute all tests in the `tests/` directory.
+2. Generate a terminal coverage report.
+3. Generate a detailed HTML coverage report in the `htmlcov/` directory.
 
 ### 5. Running the Components
 #### Start the Simulator (Producer)
