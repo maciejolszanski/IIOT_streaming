@@ -7,6 +7,7 @@ An End-to-End Data Engineering pipeline for monitoring industrial machine health
 ```text
 IIoT/
 ├── .agent/              # Agent workflows
+├── grafana/             # Grafana provisioning (dashboards, datasources)
 ├── schemas/             # Avro schema definitions
 ├── src/
 │   ├── consumers/       # Stream processing consumers
@@ -98,6 +99,12 @@ The consumer (`src/consumers/telemetry_consumer.py`) orchestrates the data flow 
 - **Batch Processing**: Groups records for optimized high-throughput database inserts.
 - **TimescaleDB Integration**: Automatically manages hypertable creation and indexing for time-series performance.
 - **Reliability**: Implements manual Kafka commits only after successful database persistence.
+
+### 📊 Monitoring Dashboard
+The project includes a pre-configured Grafana dashboard for real-time monitoring:
+- **Access**: [http://localhost:3000](http://localhost:3000) (Login: `admin` / `admin`)
+- **Provisioning**: Automatically connects to TimescaleDB and loads the "Industrial IoT Monitor" dashboard.
+- **Features**: Real-time time-series plots for sensor telemetry and health gauges for machine status.
 
 #### Configuration (Environment Variables)
 | Variable | Default | Description |

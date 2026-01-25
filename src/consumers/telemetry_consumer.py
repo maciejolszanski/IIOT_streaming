@@ -102,14 +102,20 @@ class TimescaleSink:
     def _configure_timescale(self):
         """Converts table to hypertable and adds time-series indexes."""
         with self.conn.cursor() as cur:
-            # Create hypertable (fails if already a hypertable, so we catch pgcode 42101)
+            # Create hypertable using if_not_exists (supported in TimescaleDB 2.0+)
             try:
-                cur.execute("SELECT create_hypertable('telemetry', 'event_time');")
-                logger.info("Telemetry table converted to TimescaleDB hypertable.")
+                cur.execute("SELECT create_hypertable('telemetry', 'event_time', if_not_exists => TRUE);")
+                self.conn.commit()
+                logger.info("Telemetry table hypertable status ensured.")
             except psycopg2.Error as e:
-                if e.pgcode != "42101":  # Table is already a hypertable
+                # 42101: table is already a hypertable
+                if getattr(e, "pgcode", None) == "42101":
+                    self.conn.rollback()
+                    logger.debug("Table is already a hypertable.")
+                else:
+                    logger.error(f"Failed to ensure hypertable: {e}")
+                    self.conn.rollback()
                     raise
-                self.conn.rollback()
 
             # Add optimized index for time-series queries
             cur.execute("""
