@@ -108,7 +108,7 @@
                     "group": [],
                     "metricColumn": "none",
                     "rawQuery": true,
-                    "rawSql": "SELECT\n  $__timeGroupalias(event_time, 1s),\n  sensor_type,\n  avg(value) as value\nFROM telemetry\nWHERE\n  $__timeFilter(event_time)\nGROUP BY 1, 2\nORDER BY 1",
+                    "rawSql": "SELECT\n  $__timeGroup(event_time, '1s') AS time,\n  sensor_type,\n  avg(value) as value\nFROM telemetry\nWHERE\n  $__timeFilter(event_time)\nGROUP BY 1, 2\nORDER BY 1",
                     "refId": "A",
                     "select": [
                         [
@@ -188,7 +188,7 @@
                 {
                     "datasource": {
                         "type": "postgres",
-                        "uid": "P4169E66F28A54A90"
+                        "uid": "iiot_timescaledb"
                     },
                     "format": "table",
                     "rawQuery": true,

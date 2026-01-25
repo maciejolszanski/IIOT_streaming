@@ -14,5 +14,6 @@ datasources:
       sslmode: 'disable'
       postgresVersion: 15
       timescaledb: true
+      database: iiot_db
     isDefault: true
     editable: true
