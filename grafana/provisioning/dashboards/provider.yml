@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: 'IIOT'
+    orgId: 1
+    folder: 'Industrial IoT'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
