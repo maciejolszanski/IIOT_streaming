@@ -29,6 +29,8 @@ IIoT/
 ### 2. Infrastructure Setup
 Start the core services (Kafka, TimescaleDB, Grafana):
 ```powershell
+# Create .env from template if not exists
+cp .env.template .env
 docker-compose up -d
 ```
 
@@ -102,7 +104,7 @@ The consumer (`src/consumers/telemetry_consumer.py`) orchestrates the data flow 
 
 ### 📊 Monitoring Dashboard
 The project includes a pre-configured Grafana dashboard for real-time monitoring:
-- **Access**: [http://localhost:3000](http://localhost:3000) (Login: `admin` / `admin`)
+- **Access**: [http://localhost:3000](http://localhost:3000) (Login: use `GRAFANA_ADMIN_PASSWORD` from your `.env`)
 - **Provisioning**: Automatically connects to TimescaleDB and loads the "Industrial IoT Monitor" dashboard.
 - **Features**: Real-time time-series plots for sensor telemetry and health gauges for machine status.
 
@@ -113,6 +115,8 @@ The project includes a pre-configured Grafana dashboard for real-time monitoring
 | `DB_HOST` | `localhost` | TimescaleDB host |
 | `DB_NAME` | `iiot_db` | Database name |
 | `DB_USER` | `iiot_user` | Database user |
+| `DB_PASS` | - | Database password (required) |
+| `GRAFANA_ADMIN_PASSWORD` | - | Grafana admin password (required) |
 | `LOG_LEVEL` | `INFO` | Logger verbosity |
 | `BATCH_SIZE` | `50` | Number of records per DB insert |
 

@@ -31,9 +31,9 @@ services:
     image: timescale/timescaledb:latest-pg15
     container_name: timescaledb
     environment:
-      - POSTGRES_DB=iiot_db
-      - POSTGRES_USER=iiot_user
-      - POSTGRES_PASSWORD=iiot_password
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
     ports:
       - "5432:5432"
     volumes:
@@ -54,7 +54,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       - grafana_data:/var/lib/grafana

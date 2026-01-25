@@ -4,6 +4,10 @@ from typing import Any
 import psycopg2
 import requests
 from confluent_kafka.admin import AdminClient
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 def validate_docker_health(container_name):
@@ -48,10 +52,16 @@ def validate_kafka():
 
 def validate_postgres():
     """Validates TimescaleDB connectivity."""
-    print("Checking TimescaleDB (localhost:5432)...")
+    import os
+    db_name = os.getenv("DB_NAME")
+    db_user = os.getenv("DB_USER")
+    db_pass = os.getenv("DB_PASS")
+    db_host = os.getenv("DB_HOST")
+    
+    print(f"Checking TimescaleDB ({db_host}:5432)...")
     try:
         conn = psycopg2.connect(
-            dbname="iiot_db", user="iiot_user", password="iiot_password", host="localhost", port="5432"
+            dbname=db_name, user=db_user, password=db_pass, host=db_host, port="5432"
         )
         conn.close()
         print("✅ TimescaleDB is up and reachable.")

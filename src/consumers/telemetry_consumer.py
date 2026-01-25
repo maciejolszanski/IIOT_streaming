@@ -9,6 +9,10 @@ import psycopg2
 from confluent_kafka import Consumer
 from fastavro import parse_schema, schemaless_reader
 from psycopg2.extras import execute_values
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # --- Configuration ---
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9094")
@@ -16,10 +20,10 @@ TOPIC_NAME = os.getenv("TOPIC_NAME", "telemetry_raw")
 SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "../../schemas/telemetry.avsc")
 GROUP_ID = os.getenv("GROUP_ID", "telemetry-consumer-group")
 
-DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_NAME = os.getenv("DB_NAME", "iiot_db")
-DB_USER = os.getenv("DB_USER", "iiot_user")
-DB_PASS = os.getenv("DB_PASS", "iiot_password")
+DB_HOST = os.getenv("DB_HOST")
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASS = os.getenv("DB_PASS")
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 RETRY_ATTEMPTS = int(os.getenv("RETRY_ATTEMPTS", "5"))
