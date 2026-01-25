@@ -117,6 +117,7 @@ class TimescaleSink:
                     self.conn.rollback()
                     raise
 
+
             # Add optimized index for time-series queries
             cur.execute("""
                 CREATE INDEX IF NOT EXISTS idx_telemetry_machine_time
