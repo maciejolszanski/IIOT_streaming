@@ -108,9 +108,14 @@ class TimescaleSink:
                 self.conn.commit()
                 logger.info("Telemetry table hypertable status ensured.")
             except psycopg2.Error as e:
-                logger.error(f"Failed to ensure hypertable: {e}")
-                self.conn.rollback()
-                raise
+                # 42101: table is already a hypertable
+                if getattr(e, "pgcode", None) == "42101":
+                    self.conn.rollback()
+                    logger.debug("Table is already a hypertable.")
+                else:
+                    logger.error(f"Failed to ensure hypertable: {e}")
+                    self.conn.rollback()
+                    raise
 
             # Add optimized index for time-series queries
             cur.execute("""
