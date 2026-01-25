@@ -80,6 +80,12 @@ class TimescaleSink:
                 time.sleep(RETRY_WAIT_SECONDS)
 
     def _ensure_schema(self):
+        """Orchestrates the creation of the schema and optimizations."""
+        self._create_table()
+        self._configure_timescale()
+
+    def _create_table(self):
+        """Creates the standard PostgreSQL table if it doesn't exist."""
         with self.conn.cursor() as cur:
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS telemetry (
@@ -90,17 +96,28 @@ class TimescaleSink:
                     status_code INTEGER
                 );
             """)
+            self.conn.commit()
+            logger.debug("Base telemetry table ensured.")
+
+    def _configure_timescale(self):
+        """Converts table to hypertable and adds time-series indexes."""
+        with self.conn.cursor() as cur:
+            # Create hypertable (fails if already a hypertable, so we catch pgcode 42101)
             try:
                 cur.execute("SELECT create_hypertable('telemetry', 'event_time');")
+                logger.info("Telemetry table converted to TimescaleDB hypertable.")
             except psycopg2.Error as e:
-                if e.pgcode != "42101":
+                if e.pgcode != "42101":  # Table is already a hypertable
                     raise
                 self.conn.rollback()
+
+            # Add optimized index for time-series queries
             cur.execute("""
                 CREATE INDEX IF NOT EXISTS idx_telemetry_machine_time
                 ON telemetry (machine_id, event_time DESC);
             """)
             self.conn.commit()
+            logger.debug("TimescaleDB indexes ensured.")
 
     def write_batch(self, batch):
         """Writes batch to DB. Returns True on success."""
