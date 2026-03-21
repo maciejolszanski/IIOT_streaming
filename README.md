@@ -26,10 +26,16 @@ IIoT/
 - [uv](https://docs.astral.sh/uv/) (Dependency manager)
 - Python 3.13+
 
-### 2. Infrastructure Setup
-Start the core services (Kafka, TimescaleDB, Grafana):
-```powershell
-docker-compose up -d
+### 2. Infrastructure & Application Setup
+Start the entire monitoring stack (Kafka, TimescaleDB, Grafana, Producer, and Consumer) using Docker Compose:
+```bash
+docker-compose up -d --build
+```
+This command builds the custom images for the producer and consumer and starts them along with the infrastructure.
+
+Alternatively, you can start only the core infrastructure first:
+```bash
+docker-compose up -d kafka timescaledb grafana
 ```
 
 
@@ -74,12 +80,21 @@ Every push and Pull Request to `master` triggers a GitHub Actions workflow which
 - Runs `pytest` via `uv run` and uploads coverage data.
 
 ### 6. Running the Components
-#### Start the Simulator (Producer)
+#### A. Using Docker (Recommended)
+If you used `docker-compose up -d`, both components are already running. You can view their logs with:
+```bash
+docker-compose logs -f producer
+docker-compose logs -f consumer
+```
+
+#### B. Using Local Python
+If you prefer running them locally:
+##### Start the Simulator (Producer)
 ```powershell
 uv run python src/producers/simulator.py
 ```
 
-#### Start the Telemetry Consumer (Sink)
+##### Start the Telemetry Consumer (Sink)
 ```powershell
 uv run python src/consumers/telemetry_consumer.py
 ```

@@ -11,7 +11,7 @@ from fastavro import parse_schema, schemaless_writer
 
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9094")
 TOPIC_NAME = os.getenv("TOPIC_NAME", "telemetry_raw")
-SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "../../schemas/telemetry.avsc")
+SCHEMA_PATH = os.getenv("SCHEMA_PATH")
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 MACHINE_IDS = os.getenv("MACHINE_IDS", "M001,M002,M003").split(",")
 RETRY_ATTEMPTS = int(os.getenv("RETRY_ATTEMPTS", "5"))

@@ -72,6 +72,64 @@ services:
       timeout: 5s
       retries: 5
 
+  producer:
+    build:
+      context: .
+      dockerfile: src/producers/Dockerfile.producer
+    container_name: producer
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - TOPIC_NAME=telemetry_raw
+      - SCHEMA_PATH=/producer/telemetry.avsc
+      - LOG_LEVEL=INFO
+      - MACHINE_IDS=M001,M002,M003
+      - RETRY_ATTEMPTS=5
+      - RETRY_WAIT_SECONDS=5
+    depends_on:
+      kafka:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/api/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  consumer:
+    build:
+      context: .
+      dockerfile: src/consumers/Dockerfile.consumer
+    container_name: consumer
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - TOPIC_NAME=telemetry_raw
+      - SCHEMA_PATH=/consumer/telemetry.avsc
+      - LOG_LEVEL=INFO
+      - MACHINE_IDS=M001,M002,M003
+      - RETRY_ATTEMPTS=5
+      - RETRY_WAIT_SECONDS=5
+      - DB_HOST=timescaledb        
+      - DB_NAME=iiot_db
+      - DB_USER=iiot_user
+      - DB_PASS=iiot_password
+    depends_on:
+      kafka:
+        condition: service_healthy
+      timescaledb:
+        condition: service_healthy  
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/api/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   timescaledb_data:
   grafana_data:

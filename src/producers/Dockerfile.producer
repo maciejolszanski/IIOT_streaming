@@ -1,0 +1,15 @@
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
+
+WORKDIR /producer
+
+COPY ./pyproject.toml \
+     ./src/producers/simulator.py \ 
+     ./schemas/telemetry.avsc \
+     .
+
+RUN uv sync --no-dev --no-install-project
+
+ENV PATH="/producer/.venv/bin:$PATH" \
+    SCHEMA_PATH="/producer/telemetry.avsc"
+
+CMD ["uv", "run", "python", "simulator.py"]
