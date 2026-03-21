@@ -13,7 +13,7 @@ from psycopg2.extras import execute_values
 # --- Configuration ---
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9094")
 TOPIC_NAME = os.getenv("TOPIC_NAME", "telemetry_raw")
-SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "../../schemas/telemetry.avsc")
+SCHEMA_PATH = os.getenv("SCHEMA_PATH", os.path.join(os.path.dirname(__file__), "../../schemas/telemetry.avsc"))
 GROUP_ID = os.getenv("GROUP_ID", "telemetry-consumer-group")
 
 DB_HOST = os.getenv("DB_HOST", "localhost")

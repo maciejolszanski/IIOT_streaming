@@ -1,0 +1,15 @@
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
+
+WORKDIR /consumer
+
+COPY ./pyproject.toml \
+     ./src/consumers/telemetry_consumer.py \ 
+     ./schemas/telemetry.avsc \
+     .
+
+RUN uv sync --no-dev --no-install-project
+
+ENV PATH="/consumer/.venv/bin:$PATH" \
+    SCHEMA_PATH="/consumer/telemetry.avsc"
+
+CMD ["uv", "run", "python", "telemetry_consumer.py"]
