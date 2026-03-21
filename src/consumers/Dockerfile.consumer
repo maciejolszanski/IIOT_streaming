@@ -9,7 +9,7 @@ COPY ./pyproject.toml \
 
 RUN uv sync --no-dev --no-install-project
 
-ENV PATH="/consumer/.venv/bin:$PATH"
-ENV SCHEMA_PATH="/consumer/telemetry.avsc"
+ENV PATH="/consumer/.venv/bin:$PATH" \
+    SCHEMA_PATH="/consumer/telemetry.avsc"
 
 CMD ["uv", "run", "python", "telemetry_consumer.py"]
