@@ -53,16 +53,15 @@ def validate_kafka():
 def validate_postgres():
     """Validates TimescaleDB connectivity."""
     import os
+
     db_name = os.getenv("DB_NAME")
     db_user = os.getenv("DB_USER")
     db_pass = os.getenv("DB_PASS")
     db_host = os.getenv("DB_HOST")
-    
+
     print(f"Checking TimescaleDB ({db_host}:5432)...")
     try:
-        conn = psycopg2.connect(
-            dbname=db_name, user=db_user, password=db_pass, host=db_host, port="5432"
-        )
+        conn = psycopg2.connect(dbname=db_name, user=db_user, password=db_pass, host=db_host, port="5432")
         conn.close()
         print("✅ TimescaleDB is up and reachable.")
         return True

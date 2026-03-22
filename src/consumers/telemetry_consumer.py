@@ -7,9 +7,9 @@ from datetime import datetime, timezone
 
 import psycopg2
 from confluent_kafka import Consumer
+from dotenv import load_dotenv
 from fastavro import parse_schema, schemaless_reader
 from psycopg2.extras import execute_values
-from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
@@ -120,7 +120,6 @@ class TimescaleSink:
                     logger.error(f"Failed to ensure hypertable: {e}")
                     self.conn.rollback()
                     raise
-
 
             # Add optimized index for time-series queries
             cur.execute("""
