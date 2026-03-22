@@ -7,7 +7,11 @@ import time
 from typing import Any
 
 from confluent_kafka import Producer
+from dotenv import load_dotenv
 from fastavro import parse_schema, schemaless_writer
+
+# Load environment variables from .env file
+load_dotenv()
 
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9094")
 TOPIC_NAME = os.getenv("TOPIC_NAME", "telemetry_raw")
