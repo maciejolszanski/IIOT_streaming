@@ -27,6 +27,26 @@ services:
       timeout: 10s
       retries: 5
 
+  spark:
+    image: apache/spark-py:latest
+    container_name: spark
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.master.Master"]
+    volumes:
+      - ./src:/app
+      - ./spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/api/v1/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   timescaledb:
     image: timescale/timescaledb:latest-pg15
     container_name: timescaledb
@@ -41,7 +61,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 768M
+          memory: 256M
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U iiot_user -d iiot_db" ]
       interval: 10s
@@ -65,7 +85,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256M
+          memory: 128M
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:3000/api/health" ]
       interval: 10s
@@ -92,11 +112,6 @@ services:
       resources:
         limits:
           memory: 64M
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3000/api/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   consumer:
     build:
